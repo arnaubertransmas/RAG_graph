@@ -1,44 +1,5 @@
 import requests
-
-
-PROMPT = """
-        You are an information extraction system.
-
-        Your task is to extract a knowledge graph from the given text.
-
-        Return ONLY valid JSON.
-
-        ---
-
-        OUTPUT FORMAT:
-
-        {{
-        "entities": [
-            {{"name": "ENTITY_NAME", "type": "Person | Organization | Event | Location | Concept"}}
-        ],
-        "relations": [
-            {{
-            "source": "ENTITY_NAME",
-            "relation": "RELATION_TYPE",
-            "target": "ENTITY_NAME"
-            }}
-        ]
-        }}
-
-        ---
-
-        RULES:
-        - Only extract entities that are explicitly mentioned in the text.
-        - Do not invent information.
-        - Normalize entity names.
-        - Use simple relation verbs.
-        - If unsure, skip.
-
-        ---
-
-        TEXT:
-        {text}
-"""
+from database import connection, save_graph, is_processed, mark_processed, safe_json_load
 
 SEED_TOPICS = [
     "Cold_War",
@@ -52,7 +13,14 @@ SEED_TOPICS = [
     "Berlin_Wall",
     "Mikhail_Gorbachev",
     "Ronald_Reagan"
-] 
+]
+
+
+def load_prompt():
+    with open("prompts/structure_graph.txt", "r", encoding="utf-8") as f:
+        return f.read()
+
+PROMPT = load_prompt()
 
 
 def fetch_wikipedia_page(title):
@@ -94,20 +62,40 @@ def ask_llm(text):
 
 # print(ask_llm("return the entities"))
 
+
 if __name__ == "__main__":
 
-    for i in SEED_TOPICS:
+    connection_neo4j = connection()
 
-        wikipedia = fetch_wikipedia_page(i)
+    for topic in SEED_TOPICS:
+
+        if is_processed(topic, connection_neo4j):
+            print("Skipping", topic)
+            continue
+
+        wikipedia = fetch_wikipedia_page(topic)
 
         if not wikipedia:
             continue
 
         result = ask_llm(wikipedia)
-    
-        print("TOPIC", i)
+
+        data = safe_json_load(result)
+
+        if not data:
+            print("INVALID JSON:", topic)
+            continue
+
+        print("TOPIC", topic)
         print(result)
         print("----" * 50)
+
+        try:
+            save_graph(data, connection_neo4j)
+        except Exception as e:
+            print("ERROR,", e)
+
+        mark_processed(topic, connection_neo4j)
 
 
 # ollama run mistral

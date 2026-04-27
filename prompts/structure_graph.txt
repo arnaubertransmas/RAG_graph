@@ -1,0 +1,40 @@
+You are an information extraction system.
+
+Your task is to extract a knowledge graph from the given text.
+
+Return ONLY valid JSON.
+
+---
+
+OUTPUT FORMAT:
+
+{{
+  "entities": [
+    {{"name": "ENTITY_NAME", "type": "Person | Organization | Event | Location | Concept"}}
+  ],
+  "relations": [
+    {{
+      "source": "ENTITY_NAME",
+      "relation": "RELATION_TYPE",
+      "target": "ENTITY_NAME"
+    }}
+  ]
+}}
+
+---
+
+RULES:
+- Only extract entities that are explicitly mentioned in the text.
+- Do not invent information.
+- Normalize entity names.
+- Use simple relation verbs.
+- If unsure, skip.
+
+Return ONLY minified valid JSON.
+No markdown.
+No explanations.
+No trailing commas.
+Use double quotes only.
+
+TEXT:
+{text}
