@@ -16,38 +16,41 @@ SEED_TOPICS = [
 ]
 
 
-def load_prompt():
-    with open("prompts/structure_graph.txt", "r", encoding="utf-8") as f:
+def load_prompt(file_path):
+    with open(f"prompts/{file_path}", "r", encoding="utf-8") as f:
         return f.read()
-
-PROMPT = load_prompt()
 
 
 def fetch_wikipedia_page(title):
-    url = "https://en.wikipedia.org/api/rest_v1/page/summary/" + title
-
-    headers = {
-        "User-Agent": "RAGgraph/1.0 (arnau@gmail.com)"
+    url = f"https://en.wikipedia.org/w/api.php"
+    params = {
+        "action": "query",
+        "titles": title,
+        "prop": "extracts",
+        "exintro": False,
+        # Text pla, sense HTML
+        "explaintext": True,
+        "format": "json"
     }
-
-    res = requests.get(url=url, headers=headers)
-    # print(url)
-    # print(res.status_code)
-
-    if res.status_code != 200:
-        return None
+    headers = {"User-Agent": "RAGgraph/1.0 (arnau@gmail.com)"}
+    res = requests.get(url=url, params=params, headers=headers)
     
-    data = res.json()
-    return data.get("extract", "")
+    pages = res.json()["query"]["pages"]
+    page = next(iter(pages.values()))
+    text = page.get("extract", "")
+    
+    # ~3000 caràcters, context max de Mistral
+    return text[:3000]
 
 # for i in SEED_TOPICS:
 #     a = fetch_wikipedia_page(i)
 #     print(a)
 
 
-def ask_llm(text):
+def create_graph_structure(text):
 
-    prompt = PROMPT.format(text=text)
+    stucture_graph_prompt = load_prompt("structure_graph.txt")
+    prompt = stucture_graph_prompt.format(text=text)
 
     res = requests.post(
         "http://localhost:11434/api/generate",
@@ -61,7 +64,6 @@ def ask_llm(text):
     return res.json()["response"]
 
 # print(ask_llm("return the entities"))
-
 
 if __name__ == "__main__":
 
@@ -78,8 +80,7 @@ if __name__ == "__main__":
         if not wikipedia:
             continue
 
-        result = ask_llm(wikipedia)
-
+        result = create_graph_structure(wikipedia)
         data = safe_json_load(result)
 
         if not data:
@@ -98,4 +99,4 @@ if __name__ == "__main__":
         mark_processed(topic, connection_neo4j)
 
 
-# ollama run mistral
+# # ollama run mistral

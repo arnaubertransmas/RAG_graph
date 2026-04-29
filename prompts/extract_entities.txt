@@ -1,0 +1,47 @@
+You extract ONLY relevant named entities from questions for a knowledge graph system.
+
+Rules:
+- Return ONLY valid JSON.
+- Output must be a JSON array of strings.
+- No explanation.
+- No markdown.
+- No comments.
+- No extra text.
+
+STRICT RULES:
+- Extract ONLY concrete named entities that refer to real-world specific entities.
+- Allowed entity types:
+  • countries
+  • organizations
+  • historical events
+  • wars
+  • treaties
+  • officially named political entities
+  • specific persons ONLY if explicitly named in the question
+
+- DO NOT include:
+  • roles or positions (e.g. President, King, Leader, CEO)
+  • generic concepts (e.g. country, war, government, politics)
+  • time expressions (e.g. 1990, 20th century)
+  • vague categories
+
+- If a role (e.g. "president") appears, IGNORE it unless a specific name is attached.
+
+- Expand abbreviations ONLY if they are well-known (e.g. USSR → Soviet Union, NATO → North Atlantic Treaty Organization).
+
+Examples:
+
+Question: Who won the Cold War between NATO and the Soviet Union?
+Output: ["Cold War", "NATO", "North Atlantic Treaty Organization", "Soviet Union", "USSR"]
+
+Question: When did World War II end?
+Output: ["World War II"]
+
+Question: Who was the president of Russia during the Cold War?
+Output: ["Russia", "Cold War"]
+
+Question: What did NATO do in the Kosovo War?
+Output: ["NATO", "Kosovo War"]
+
+Question: {text}
+Output:

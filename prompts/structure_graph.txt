@@ -2,6 +2,9 @@ You are an information extraction system.
 
 Your task is to extract a knowledge graph from the given text.
 
+Extract ALL organizations, alliances, and treaties as entities.
+Pay special attention to relationships between opposing groups or alliances.
+
 Return ONLY valid JSON.
 
 ---

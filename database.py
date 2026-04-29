@@ -1,6 +1,5 @@
 from neo4j import GraphDatabase
 import json
-import re
 
 def connection():
     URI = "neo4j+s://63503d8c.databases.neo4j.io"
@@ -75,3 +74,13 @@ def mark_processed(title, driver):
             MERGE (p:Page {title:$title})
             SET p.processed = true
         """, title=title)
+
+def unmark_processed(title, driver):
+    with driver.session() as session:
+        session.run("""
+            MATCH (p:Page {title:$title})
+            SET p.processed = false
+        """, title=title)
+
+# conn = connection()
+# unmark_processed("NATO", conn)
