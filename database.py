@@ -1,5 +1,4 @@
 from neo4j import GraphDatabase
-import json
 
 def connection():
     URI = "neo4j+s://63503d8c.databases.neo4j.io"
@@ -9,28 +8,6 @@ def connection():
     driver = GraphDatabase.driver(URI, auth=(USER, PASSWORD))
 
     return driver
-
-
-def safe_json_load(text):
-
-    try:
-        return json.loads(text)
-    except:
-        pass
-
-    try:
-        start = text.find("{")
-        end = text.rfind("}")
-
-        if start == -1 or end == -1:
-            return None
-
-        cleaned = text[start:end+1]
-
-        return json.loads(cleaned)
-
-    except:
-        return None
 
 def save_graph(data, driver):
 

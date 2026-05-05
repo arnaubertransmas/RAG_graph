@@ -1,5 +1,6 @@
 import requests
-from database import connection, save_graph, is_processed, mark_processed, safe_json_load
+from database import connection, save_graph, is_processed, mark_processed
+from utils import load_prompt, safe_json_load
 
 SEED_TOPICS = [
     "Cold_War",
@@ -14,11 +15,6 @@ SEED_TOPICS = [
     "Mikhail_Gorbachev",
     "Ronald_Reagan"
 ]
-
-
-def load_prompt(file_path):
-    with open(f"prompts/{file_path}", "r", encoding="utf-8") as f:
-        return f.read()
 
 
 def fetch_wikipedia_page(title):
@@ -63,7 +59,6 @@ def create_graph_structure(text):
     )
     return res.json()["response"]
 
-# print(ask_llm("return the entities"))
 
 if __name__ == "__main__":
 
