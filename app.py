@@ -6,7 +6,7 @@ from rag import get_context
 def main():
     driver = connection()
     while True:
-        text = input("Question: ")
+        text = input("How can I help you? ")
 
         if text.lower() == ":q":
             break

@@ -14,9 +14,9 @@ Rules:
 - Answer in the same language as the question.
 
 CONTEXT:
-{text}
+{context}
 
 QUESTION:
-{question}
+{text}
 
 ANSWER:

@@ -7,12 +7,14 @@ def load_prompt(file_path):
         return f.read()
     
 
-def ask_llm(text, prompt_file_name, context=None):
-    extract_entities_prompt = load_prompt(prompt_file_name)
-    if context:
-        prompt = extract_entities_prompt.format(text=context, question=text)
+def ask_llm(question, prompt_file_name, context=None):
+    prompt_template = load_prompt(prompt_file_name)
+    
+    if context is not None:
+        prompt = prompt_template.format(context=context, text=question)
     else:
-        prompt = extract_entities_prompt.format(text=text)
+        prompt = prompt_template.format(text=question)
+    
     res = requests.post(
         "http://localhost:11434/api/generate",
         json={
