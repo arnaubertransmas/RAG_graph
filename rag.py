@@ -23,13 +23,14 @@ def resolve_names_in_graph(names, driver):
                 continue
             
             # busquem nodes similars
-            # returns 'Cold War' → score 2.99
+            # returns node 'Cold War' → score 2.99
             result = session.run("""
                 CALL db.index.fulltext.queryNodes('entity_name_index', $search)
                 YIELD node, score
                 RETURN node.name AS name, score
                 LIMIT 5
             """, search=name)
+            # de neo4j cursor a list per poder iterar fàcilment
             rows = list(result)
             resolved.update(r["name"] for r in rows if r["name"])
 
@@ -59,9 +60,6 @@ def get_context(entities_json, driver):
     names = resolve_names_in_graph(names, driver)
     # print("Buscant:", names)
 
-    if not names:
-        return ""
-
     # A --[RELATION]--> B
     triples = set()
 
@@ -69,6 +67,7 @@ def get_context(entities_json, driver):
         search_query = " OR ".join(f'"{n}"' for n in names if n.strip())
 
         if search_query:
+            # busquem nodes
             result = session.run("""
                 CALL db.index.fulltext.queryNodes('entity_name_index', $search)
                 YIELD node AS a
@@ -80,6 +79,7 @@ def get_context(entities_json, driver):
             for r in rows:
                 triples.add(f"{r['origen']} --[{r['relacio']}]--> {r['desti']}")
 
+        # relacions entre entitats
         result = session.run("""
             MATCH (a:Entity)-[r]-(b:Entity)
             WHERE a.name IN $names AND b.name IN $names

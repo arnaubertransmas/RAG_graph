@@ -5,10 +5,11 @@ from rag import get_context
 
 def main():
     driver = connection()
+
     while True:
         text = input("How can I help you? ")
 
-        if text.lower() == ":q":
+        if text.lower() == ":q" or text.lower() == "bye":
             break
 
         entities = ask_llm(text, "extract_entities.txt")

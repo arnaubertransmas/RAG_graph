@@ -28,6 +28,7 @@ def ask_llm(question, prompt_file_name, context=None):
 
 
 def safe_json_load(text):
+    ''' netejem json '''
 
     try:
         return json.loads(text)

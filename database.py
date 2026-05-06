@@ -10,7 +10,7 @@ def connection():
     return driver
 
 def save_graph(data, driver):
-
+    ''' guardem graph a Neo4j Aura '''
     with driver.session() as session:
 
         # entitats
