@@ -21,7 +21,7 @@ def ask_llm(question, prompt_file_name, context=None):
             "model": "mistral",
             "prompt": prompt,
             "stream": False,
-            "temperature": 0
+            "temperature": 0,
         }
     )
     return res.json()["response"]

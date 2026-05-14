@@ -1,16 +1,10 @@
 You are an information extraction system.
-
 Your task is to extract a knowledge graph from the given text.
-
-Extract ALL organizations, alliances, and treaties as entities.
+Extract ALL organizations, alliances, treaties, events, people, locations, and concepts as entities.
 Pay special attention to relationships between opposing groups or alliances.
-
 Return ONLY valid JSON.
-
 ---
-
 OUTPUT FORMAT:
-
 {{
   "entities": [
     {{"name": "ENTITY_NAME", "type": "Person | Organization | Event | Location | Concept"}}
@@ -23,21 +17,32 @@ OUTPUT FORMAT:
     }}
   ]
 }}
-
 ---
-
 RULES:
 - Only extract entities that are explicitly mentioned in the text.
 - Do not invent information.
-- Normalize entity names.
-- Use simple relation verbs.
+- Normalize entity names (e.g. "U.S." → "United States").
+- Use simple UPPERCASE_SNAKE_CASE relation verbs.
+- Every entity mentioned in a relation MUST also appear in the entities list.
+- Always extract relations — do not return an empty relations list if entities are present.
 - If unsure, skip.
+
+- CRITICAL: Every entity that appears as "source" or "target" in a relation
+  MUST also be listed in the "entities" array. Never reference an entity in
+  relations that is not declared in entities.
 
 Return ONLY minified valid JSON.
 No markdown.
 No explanations.
 No trailing commas.
 Use double quotes only.
+---
+EXAMPLES:
+Input: "The Korean War (1950–1953) was a conflict between North Korea, supported by China and the Soviet Union, and South Korea, supported by the United Nations. It was a proxy war of the Cold War."
+Output: {{"entities":[{{"name":"Korean War","type":"Event"}},{{"name":"North Korea","type":"Location"}},{{"name":"South Korea","type":"Location"}},{{"name":"China","type":"Organization"}},{{"name":"Soviet Union","type":"Organization"}},{{"name":"United Nations","type":"Organization"}},{{"name":"Cold War","type":"Event"}}],"relations":[{{"source":"Korean War","relation":"STARTED_IN","target":"1950"}},{{"source":"Korean War","relation":"ENDED_IN","target":"1953"}},{{"source":"North Korea","relation":"PARTICIPATED_IN","target":"Korean War"}},{{"source":"South Korea","relation":"PARTICIPATED_IN","target":"Korean War"}},{{"source":"China","relation":"SUPPORTED","target":"North Korea"}},{{"source":"Soviet Union","relation":"SUPPORTED","target":"North Korea"}},{{"source":"United Nations","relation":"SUPPORTED","target":"South Korea"}},{{"source":"Korean War","relation":"OCCURRED_DURING","target":"Cold War"}}]}}
 
+Input: "NATO was founded in 1949 as a military alliance among Western nations to counter the Soviet threat during the Cold War."
+Output: {{"entities":[{{"name":"NATO","type":"Organization"}},{{"name":"Cold War","type":"Event"}},{{"name":"Soviet Union","type":"Organization"}}],"relations":[{{"source":"NATO","relation":"FOUNDED_IN","target":"1949"}},{{"source":"NATO","relation":"OPPOSE","target":"Soviet Union"}},{{"source":"NATO","relation":"EXISTED_DURING","target":"Cold War"}}]}}
+---
 TEXT:
 {text}
