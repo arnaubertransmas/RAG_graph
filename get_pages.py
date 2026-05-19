@@ -16,7 +16,6 @@ SEED_TOPICS = [
     "Ronald_Reagan"
 ]
 
-
 def fetch_wikipedia_page(title):
     # url = f"https://ca.wikipedia.org/w/api.php"
     url = f"https://en.wikipedia.org/w/api.php"
@@ -36,8 +35,7 @@ def fetch_wikipedia_page(title):
     page = next(iter(pages.values()))
     text = page.get("extract", "")
     
-    # ~3000 caràcters, context max de Mistral
-    return text[:8000]
+    return text[:8500]
 
 # for i in SEED_TOPICS:
 #     a = fetch_wikipedia_page(i)

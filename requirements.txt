@@ -1,4 +1,3 @@
-tqdm
 neo4j
 requests
 ipywidgets
