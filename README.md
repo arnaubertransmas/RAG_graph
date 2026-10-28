@@ -1,59 +1,47 @@
-======================================================
-  KG-RAG - Guia d'instal·lació i execució
-======================================================
+# KG-RAG: Knowledge Graph-based Retrieval-Augmented Generation
 
-REQUISITS PREVIS
-----------------
-- Python 3.9 o superior
-- Neo4j en marxa
+A RAG system that uses a knowledge graph, instead of isolated text chunks, to give an LLM structured and connected context. This improves answer accuracy and reduces hallucinations.
 
+Final project of the vocational Master's in AI & Big Data at Institut TIC de Barcelona, presented at **Tech Summit 2026 – AI Revolution** (StartupMat).
 
-PAS 1 - Instal·lar Ollama
-----------------------------------------------------
+## The problem
+Traditional RAG systems retrieve text chunks in isolation and ignore the relationships between them. This leads to incoherent answers and increases the risk of hallucinations.
 
-    sudo apt-get install ollama
+## How it works
+1. **Data collection:** fetches English Wikipedia articles about the Cold War (United States, Soviet Union, NATO, Berlin Wall…).
+2. **Graph construction:** Mistral 7B, running locally with Ollama, extracts entities and relations from each article as semantic triples (`entityA --[RELATION]--> entityB`) and stores them in Neo4j.
+3. **Retrieval:** when the user asks a question, the system extracts its key entities, resolves them against the graph (including aliases such as *USA → United States*) and retrieves their relations as structured context.
+4. **Grounded answer:** the LLM answers only if the graph contains enough information. Otherwise, it says so explicitly instead of making something up.
 
-Un cop instal·lat, descarrega el model que necessita l'app:
+The resulting graph contains **553 entities and 664 relations** between key concepts, events and actors of the Cold War.
 
-    ollama pull mistral
+## Tech stack
+Python · Neo4j · Ollama · Mistral 7B · Wikipedia API
 
+## Project structure
+| File | Purpose |
+|---|---|
+| `get_pages.py` | Fetches Wikipedia articles and builds the knowledge graph |
+| `database.py` | Neo4j connection and graph storage |
+| `rag.py` | Entity resolution and context retrieval from the graph |
+| `app.py` | Command-line question-answering interface |
+| `utils.py` | LLM calls and helpers |
+| `prompts/` | Prompts for graph extraction, entity extraction and answer generation |
 
-PAS 2 - Crear l'entorn virtual de Python
------------------------------------------
-Dins la carpeta RAG_graph, executa:
+## Installation and usage
 
-    python3 -m venv .venv
+### Prerequisites
+- Python 3.9 or higher
+- A running Neo4j instance (local or Neo4j AuraDB)
 
-
-PAS 3 - Activar l'entorn virtual
-----------------------------------
-    source .venv/bin/activate
-
-
-PAS 4 - Instal·lar les dependències
--------------------------------------
-    pip install -r requirements.txt
-
-
-PAS 5 - Iniciar Ollama
------------------------
-En un altre terminal, executa:
-
-    ollama serve
-
-
-PAS 6 - Executar l'aplicació
-------------------------------
-
-    python3 app.py
-
-
-RESUM DE COMANDES (tot seguit)
---------------------------------
-    sudo apt-get install ollama
-    ollama pull mistral
-    python3 -m venv .venv
-    source .venv/bin/activate
-    pip install -r requirements.txt
-    ollama serve
-    python3 app.py
+### Execute the following commands
+```bash
+curl -fsSL https://ollama.com/install.sh | sh
+ollama pull mistral
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+ollama serve        # in another terminal
+python3 get_pages.py
+python3 app.py
+```
